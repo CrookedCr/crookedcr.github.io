@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="nuklear库提供三种方式处理和使用字体。 1、使用开发者自己提供的实现，并且无需顶点缓冲区输出 最简单的字体处理方法是只提供 struct nk_user_font 结构，只需要所用字体的像素高度和回调来计算字符串的宽度，这种处理字体的方式最适合使用普通的绘图形状命令API，自己绘制所有的文本，库不需要对开发者使用的字体的处理机制有任何深入的了解。需要注意的是：提供给nuklear所使用的指向">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nuklear手册 2 - FONT API">
+<meta property="og:url" content="http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/index.html">
+<meta property="og:site_name" content="寻觅">
+<meta property="og:description" content="nuklear库提供三种方式处理和使用字体。 1、使用开发者自己提供的实现，并且无需顶点缓冲区输出 最简单的字体处理方法是只提供 struct nk_user_font 结构，只需要所用字体的像素高度和回调来计算字符串的宽度，这种处理字体的方式最适合使用普通的绘图形状命令API，自己绘制所有的文本，库不需要对开发者使用的字体的处理机制有任何深入的了解。需要注意的是：提供给nuklear所使用的指向">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-10-02T18:41:49.000Z">
+<meta property="article:modified_time" content="2022-10-04T09:17:13.433Z">
+<meta property="article:tag" content="nuklear">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>nuklear手册 2 - FONT API</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/10/02/nuklear%E6%89%8B%E5%86%8C%201%20-%20%E4%B8%8A%E4%B8%8B%E6%96%87API/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&text=nuklear手册 2 - FONT API"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&is_video=false&description=nuklear手册 2 - FONT API"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=nuklear手册 2 - FONT API&body=Check out this article: http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&name=nuklear手册 2 - FONT API&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&t=nuklear手册 2 - FONT API"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        nuklear手册 2 - FONT API
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-02T18:41:49.000Z" itemprop="datePublished">2022-10-03</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/nuklear/" rel="tag">nuklear</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>nuklear库提供三种方式处理和使用字体。</p>
+<p>1、使用开发者自己提供的实现，并且无需顶点缓冲区输出</p>
+<p>最简单的字体处理方法是只提供 struct nk_user_font 结构，只需要所用字体的像素高度和回调来计算字符串的宽度，这种处理字体的方式最适合使用普通的绘图形状命令API，自己绘制所有的文本，库不需要对开发者使用的字体的处理机制有任何深入的了解。需要注意的是：提供给nuklear所使用的指向 nk_user_font 结构的指针必须在程序的整个运行周期内持续有效。</p>
+<p>官方示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">float your_text_width_calculation(nk_handle handle, float height, const char *text, int len)</span><br><span class="line">        &#123;</span><br><span class="line">            your_font_type *type = handle.ptr;</span><br><span class="line">            float text_width = ...;</span><br><span class="line">            return text_width;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        struct nk_user_font font;</span><br><span class="line">        font.userdata.ptr = &amp;your_font_class_or_struct;</span><br><span class="line">        font.height = your_font_height;</span><br><span class="line">        font.width = your_text_width_calculation;</span><br><span class="line"></span><br><span class="line">        struct nk_context ctx;</span><br><span class="line">        nk_init_default(&amp;ctx, &amp;font);</span><br></pre></td></tr></table></figure>
+
+<p>2、使用开发者自己的实现并且通过顶点缓冲区进行输出</p>
+<p>如果第一种方法不能满足开发需求，则必须在 struct nk_user_font 结构中提供两个附加的参数，首先是用于将文本绘制为子图像的纹理图集句柄，一个更大的字体图集纹理和一个回调来查询字符的字形信息（计算偏移量，大小等）。所以仍然可以提供自己的字体并使用顶点缓冲区输出。</p>
+<p>官方示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">float your_text_width_calculation(nk_handle handle, float height, const char *text, int len)</span><br><span class="line">        &#123;</span><br><span class="line">            your_font_type *type = handle.ptr;</span><br><span class="line">            float text_width = ...;</span><br><span class="line">            return text_width;</span><br><span class="line">        &#125;</span><br><span class="line">        void query_your_font_glyph(nk_handle handle, float font_height, struct nk_user_font_glyph *glyph, nk_rune codepoint, nk_rune next_codepoint)</span><br><span class="line">        &#123;</span><br><span class="line">            your_font_type *type = handle.ptr;</span><br><span class="line">            glyph.width = ...;</span><br><span class="line">            glyph.height = ...;</span><br><span class="line">            glyph.xadvance = ...;</span><br><span class="line">            glyph.uv[0].x = ...;</span><br><span class="line">            glyph.uv[0].y = ...;</span><br><span class="line">            glyph.uv[1].x = ...;</span><br><span class="line">            glyph.uv[1].y = ...;</span><br><span class="line">            glyph.offset.x = ...;</span><br><span class="line">            glyph.offset.y = ...;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        struct nk_user_font font;</span><br><span class="line">        font.userdata.ptr = &amp;your_font_class_or_struct;</span><br><span class="line">        font.height = your_font_height;</span><br><span class="line">        font.width = your_text_width_calculation;</span><br><span class="line">        font.query = query_your_font_glyph;</span><br><span class="line">        font.texture.id = your_font_texture;</span><br><span class="line"></span><br><span class="line">        struct nk_context ctx;</span><br><span class="line">        nk_init_default(&amp;ctx, &amp;font);</span><br></pre></td></tr></table></figure>
+
+<p>3、Nuklear 字体烘焙</p>
+<p>最后一种方法，如果没有字体处理功能或者要使用此库中附带的可选字体处理功能的话，nuklear提供了字体处理API可用于创建字体和字体图集纹理，并且可以选择是否使用顶点缓冲区进行输出。这种方法仍然使用 struct nk_user_font 结构和两种不同的方法，它更多的属与nuklear的扩展，所以并不依赖于 nk_context 的状态。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_font_atlas_init_default(struct nk_font_atlas*);</span><br></pre></td></tr></table></figure>
+
+<p>首先需要由nk_Font_atlas_init_xxx函数执行初始化，如果不关心内存的使用情况只需要调用默认版本 nk_font_atlas_init_default ，所有使用的内存将由标准库进行分配。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_font_atlas_init(struct nk_font_atlas*, struct nk_allocator*);</span><br></pre></td></tr></table></figure>
+
+<p>如果要控制内存分配，但不关心分配的内存是临时的，可以在字体烘焙过程结束后直接释放，或者是一直使用，则可以调用 nk_font_atlas_init 函数。</p>
+<p>成功初始化字体烘焙器后，就可以通过 nk_font_atlas_add_xxx 函数选择是从内存还是文件中添加TrueType (.ttf) 字体：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">struct nk_font* nk_font_atlas_add_from_memory(struct nk_font_atlas *atlas, void *memory, nk_size size, float height, const struct nk_font_config *config);</span><br><span class="line">struct nk_font* nk_font_atlas_add_from_file(struct nk_font_atlas *atlas, const char *file_path, float height, const struct nk_font_config*);</span><br></pre></td></tr></table></figure>
+
+<p>添加字体将永久的存储每个字体、字体配置和ttf内存块，在字体图集中，允许重用字体图集。如果不想通过添加其他字体来重用字体烘焙器，可以在烘焙过程结束后（在调用nk_font_atlas_end 函数之后）调用 nk_font_atlas_cleanup 函数。</p>
+<p>一旦添加了所有想要渲染的字体，就可以开始烘焙的过程了，通过调用nk_font_atlas_bake 函数将每个选定的字形映射到图像。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">const void* nk_font_atlas_bake(struct nk_font_atlas*, int *width, int *height, enum nk_font_atlas_format);</span><br></pre></td></tr></table></figure>
+
+<p>烘焙过程返回图像的内存、宽度和高度，可选择是创建用于创建自己的图像对象还是将其上载到任何图形库。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_font_atlas_end(struct nk_font_atlas*, nk_handle tex, struct nk_draw_null_texture*);</span><br></pre></td></tr></table></figure>
+
+<p>无论是哪种情况，最终都必须调用 nk_font_atlas_end 函数释放所有临时性内存，包括字体图集图像，所以请确保在此之前创建所需的字体纹理或对象句柄，并可选择性填充 struct nk_draw_null_texture * 用于可选的顶点输出，如果不想使用就把参数设置为空指针。</p>
+<p>到此时就算完成了，如果不想重用字体图集，可以调用 nk_font_atlas_cleanup 函数释放所有truetype点和配置内存，最后，如果不再使用字体图集和任何字体，只需要调用nk_font_atlas_clear 函数来释放所有仍在使用的内存即可。</p>
+<p>字体处理相关API：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">#ifdef NK_INCLUDE_DEFAULT_ALLOCATOR</span><br><span class="line">NK_API void nk_font_atlas_init_default(struct nk_font_atlas*);</span><br><span class="line">#endif</span><br><span class="line">NK_API void nk_font_atlas_init(struct nk_font_atlas*, struct nk_allocator*);</span><br><span class="line">NK_API void nk_font_atlas_init_custom(struct nk_font_atlas*, struct nk_allocator *persistent, struct nk_allocator *transient);</span><br><span class="line">NK_API void nk_font_atlas_begin(struct nk_font_atlas*);</span><br><span class="line">NK_API struct nk_font_config nk_font_config(float pixel_height);</span><br><span class="line">NK_API struct nk_font *nk_font_atlas_add(struct nk_font_atlas*, const struct nk_font_config*);</span><br><span class="line">#ifdef NK_INCLUDE_DEFAULT_FONT</span><br><span class="line">NK_API struct nk_font* nk_font_atlas_add_default(struct nk_font_atlas*, float height, const struct nk_font_config*);</span><br><span class="line">#endif</span><br><span class="line">NK_API struct nk_font* nk_font_atlas_add_from_memory(struct nk_font_atlas *atlas, void *memory, nk_size size, float height, const struct nk_font_config *config);</span><br><span class="line">#ifdef NK_INCLUDE_STANDARD_IO</span><br><span class="line">NK_API struct nk_font* nk_font_atlas_add_from_file(struct nk_font_atlas *atlas, const char *file_path, float height, const struct nk_font_config*);</span><br><span class="line">#endif</span><br><span class="line">NK_API struct nk_font *nk_font_atlas_add_compressed(struct nk_font_atlas*, void *memory, nk_size size, float height, const struct nk_font_config*);</span><br><span class="line">NK_API struct nk_font* nk_font_atlas_add_compressed_base85(struct nk_font_atlas*, const char *data, float height, const struct nk_font_config *config);</span><br><span class="line">NK_API const void* nk_font_atlas_bake(struct nk_font_atlas*, int *width, int *height, enum nk_font_atlas_format);</span><br><span class="line">NK_API void nk_font_atlas_end(struct nk_font_atlas*, nk_handle tex, struct nk_draw_null_texture*);</span><br><span class="line">NK_API const struct nk_font_glyph* nk_font_find_glyph(struct nk_font*, nk_rune unicode);</span><br><span class="line">NK_API void nk_font_atlas_cleanup(struct nk_font_atlas *atlas);</span><br><span class="line">NK_API void nk_font_atlas_clear(struct nk_font_atlas*);</span><br><span class="line"></span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">语言相关处理函数：</span><br><span class="line">NK_API const nk_rune *nk_font_default_glyph_ranges(void);</span><br><span class="line">NK_API const nk_rune *nk_font_chinese_glyph_ranges(void);</span><br><span class="line">NK_API const nk_rune *nk_font_cyrillic_glyph_ranges(void);</span><br><span class="line">NK_API const nk_rune *nk_font_korean_glyph_ranges(void);</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&text=nuklear手册 2 - FONT API"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&is_video=false&description=nuklear手册 2 - FONT API"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=nuklear手册 2 - FONT API&body=Check out this article: http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&title=nuklear手册 2 - FONT API"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&name=nuklear手册 2 - FONT API&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/&t=nuklear手册 2 - FONT API"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2022
+    寻觅
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

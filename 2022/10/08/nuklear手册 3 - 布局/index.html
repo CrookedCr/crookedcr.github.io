@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="有5种不同的API可以用于布局，该库中的所有局部方法都基于行的概念，通过调用布局函数分配行后，每填充一个部件将在分配的行上前进一个内部指针。 要定义布局，只需要调用适当的布局函数，并且后续每个部件的布局都将按照布局函数的设置排列，当部件超过了定义的列函数，将自动转向下一行显示，无需再次调用布局函数。 用法： 1、nk_layout_row_dynamic 函数 1void nk_layout_ro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nuklear手册 3 - 布局">
+<meta property="og:url" content="http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/index.html">
+<meta property="og:site_name" content="寻觅">
+<meta property="og:description" content="有5种不同的API可以用于布局，该库中的所有局部方法都基于行的概念，通过调用布局函数分配行后，每填充一个部件将在分配的行上前进一个内部指针。 要定义布局，只需要调用适当的布局函数，并且后续每个部件的布局都将按照布局函数的设置排列，当部件超过了定义的列函数，将自动转向下一行显示，无需再次调用布局函数。 用法： 1、nk_layout_row_dynamic 函数 1void nk_layout_ro">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="file:///workzone/website/blog/pic/nuklear/nk_layout_row_dynamic.png">
+<meta property="og:image" content="file:///workzone/website/blog/pic/nuklear/nk_layout_row_static.png">
+<meta property="og:image" content="file:///workzone/website/blog/pic/nuklear/nk_layout_space_xxx.png">
+<meta property="article:published_time" content="2022-10-08T10:57:43.000Z">
+<meta property="article:modified_time" content="2022-10-08T14:15:31.200Z">
+<meta property="article:tag" content="nuklear">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="file:///workzone/website/blog/pic/nuklear/nk_layout_row_dynamic.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>nuklear手册 3 - 布局</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/01/23/c&cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/10/03/nuklear%E6%89%8B%E5%86%8C%202%20-%20FONT%20API/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&text=nuklear手册 3 - 布局"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&is_video=false&description=nuklear手册 3 - 布局"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=nuklear手册 3 - 布局&body=Check out this article: http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&name=nuklear手册 3 - 布局&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&t=nuklear手册 3 - 布局"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        nuklear手册 3 - 布局
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-08T10:57:43.000Z" itemprop="datePublished">2022-10-08</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/nuklear/" rel="tag">nuklear</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>有5种不同的API可以用于布局，该库中的所有局部方法都基于行的概念，通过调用布局函数分配行后，每填充一个部件将在分配的行上前进一个内部指针。</p>
+<p>要定义布局，只需要调用适当的布局函数，并且后续每个部件的布局都将按照布局函数的设置排列，当部件超过了定义的列函数，将自动转向下一行显示，无需再次调用布局函数。</p>
+<p>用法：</p>
+<p>1、nk_layout_row_dynamic 函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_dynamic(struct nk_context *ctx, float height, int cols);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>float height 为行中每个部件保留的高度，如果为0，将自动设置布局；</p>
+<p>int cols 行内的部件数量。</p>
+<p>最简单的布局函数是 <code>nk_layout_row_dynamic</code>，使用 nk_layout_row_dynamic 函数时，窗口内的部件宽度将随窗口宽度动态增长。</p>
+<p>部件宽度 &#x3D; (窗口宽度 - 填充 - 间距) * (1&#x2F;列数)</p>
+<p>和所有其他布局API一样，如果在窗口内定义的部件多于列，那么库将分配一个新行，并保留以前定义的所有布局参数。</p>
+<img title src="file:///workzone/website/blog/pic/nuklear/nk_layout_row_dynamic.png" alt data-align="center" width="464">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">if (nk_begin_xxx(...) &#123;</span><br><span class="line">///         // first row with height: 30 composed of two widgets</span><br><span class="line">///         nk_layout_row_dynamic(&amp;ctx, 30, 2);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         //</span><br><span class="line">///         // second row with same parameter as defined above</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         //</span><br><span class="line">///         // third row uses 0 for height which will use auto layouting</span><br><span class="line">///         nk_layout_row_dynamic(&amp;ctx, 0, 2);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///     &#125;</span><br><span class="line">///     nk_end(...);</span><br></pre></td></tr></table></figure>
+
+<p>2、nk_layout_row_static 函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_static(struct nk_context *ctx, float height, int item_width, int cols);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>float height 为行中每个部件保留的高度，如果为0，将自动设置布局；</p>
+<p>int item_width 表示为行中的每个部件保留的像素宽度；</p>
+<p>int cols 行内的部件数量。</p>
+<p>另一个简单的布局函数是 <code>nk_layout_row_static </code>函数。在布局内的每个部件具有相同且固定的的像素宽度。</p>
+<img title src="file:///workzone/website/blog/pic/nuklear/nk_layout_row_static.png" alt data-align="center" width="342">
+
+<p>3、nk_layout_row_begin、nk_layout_row_push、nk_layout_row_end 函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_begin(struct nk_context *ctx, enum nk_layout_format fmt, float row_height, int cols);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>enum nk_layout_format fmt 按窗口比例显示为NK_DYNAMIC，列固定大小显示为NK_STATIC；</p>
+<p>float row_height 为行中的每个部件保留的像素高度，如果为0，将自动设置布局；</p>
+<p>int cols 行内的部件数量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_push(struct nk_context*, float value);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>float value 按窗口比例或固定宽度显示，取决于前一个nk_layout_row_begin函数调用中设置的enum nk_layout_format参数。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_end(struct nk_context*);</span><br></pre></td></tr></table></figure>
+
+<p>参数：struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构。</p>
+<p>更高级的布局API是函数<code>nk_layout_row_begin</code>、<code>nk_layout_row_push</code>和<code>nk_loyout_rown_end</code>。它们允许直接指定一行中的每列的部件是按像素宽度或是按窗口比例显示，但不支持同时使用这两个选项。</p>
+<p>当使用枚举值NK_DYNAMIC时，nk_layout_row_push函数第二个参数的值应当在0.0f至1.0f之间；当使用枚举值NK_STATIC时，nk_layout_row_push函数第二个参数的值表示的应当是像素宽度。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">if (nk_begin_xxx(...) &#123;</span><br><span class="line">///         // first row with height: 25 composed of two widgets with width 60 and 40</span><br><span class="line">///         nk_layout_row_begin(ctx, NK_STATIC, 25, 2);</span><br><span class="line">///         nk_layout_row_push(ctx, 60);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_push(ctx, 40);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_end(ctx);</span><br><span class="line">///         //</span><br><span class="line">///         // second row with height: 25 composed of two widgets with window ratio 0.25 and 0.75</span><br><span class="line">///         nk_layout_row_begin(ctx, NK_DYNAMIC, 25, 2);</span><br><span class="line">///         nk_layout_row_push(ctx, 0.25f);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_push(ctx, 0.75f);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_end(ctx);</span><br><span class="line">///         //</span><br><span class="line">///         // third row with auto generated height: composed of two widgets with window ratio 0.25 and 0.75</span><br><span class="line">///         nk_layout_row_begin(ctx, NK_DYNAMIC, 0, 2);</span><br><span class="line">///         nk_layout_row_push(ctx, 0.25f);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_push(ctx, 0.75f);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_end(ctx);</span><br><span class="line">///     &#125;</span><br><span class="line">///     nk_end(...);if (nk_begin_xxx(...) &#123;</span><br><span class="line">///         // first row with height: 25 composed of two widgets with width 60 and 40</span><br><span class="line">///         nk_layout_row_begin(ctx, NK_STATIC, 25, 2);</span><br><span class="line">///         nk_layout_row_push(ctx, 60);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_push(ctx, 40);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_end(ctx);</span><br><span class="line">///         //</span><br><span class="line">///         // second row with height: 25 composed of two widgets with window ratio 0.25 and 0.75</span><br><span class="line">///         nk_layout_row_begin(ctx, NK_DYNAMIC, 25, 2);</span><br><span class="line">///         nk_layout_row_push(ctx, 0.25f);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_push(ctx, 0.75f);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_end(ctx);</span><br><span class="line">///         //</span><br><span class="line">///         // third row with auto generated height: composed of two widgets with window ratio 0.25 and 0.75</span><br><span class="line">///         nk_layout_row_begin(ctx, NK_DYNAMIC, 0, 2);</span><br><span class="line">///         nk_layout_row_push(ctx, 0.25f);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_push(ctx, 0.75f);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_row_end(ctx);</span><br><span class="line">///     &#125;</span><br><span class="line">///     nk_end(...);</span><br></pre></td></tr></table></figure>
+
+<p>4、nk_layout_row 函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row(struct nk_context*, enum nk_layout_format, float height, int cols, const float *ratio);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>enum nk_layout_format fmt 按窗口比例显示为NK_DYNAMIC，列固定大小显示为NK_STATIC；</p>
+<p>float row_height 为行中的每个部件保留的像素高度，如果为0，将自动设置布局；</p>
+<p>int cols 行内的部件数量；</p>
+<p>const float *ratio 含缩放值的数组。</p>
+<p>nk_layout_row 函数允许通过一个数组定义部件在每行中的缩放比例或是像素大小。</p>
+<p>例：</p>
+<p>当enum nk_layout_format的值为NK_STATIC时：</p>
+<p>const float ratio[] &#x3D; {100,120}; </p>
+<p>表示定义了一行中两列部件各自的像素宽度；</p>
+<p>当enum nk_layout_format的值为NK_DYNAMIC时：</p>
+<p>const float ratio[] &#x3D; {0.5f,0.5f};</p>
+<p>表示定义了一行中两列部件各自的按窗口比例缩放率；</p>
+<p>当每行中的部件数量大于列时，将换行显示部件且部件宽度将重头按比例缩放数组设置的值显示。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">if (nk_begin_xxx(...) &#123;</span><br><span class="line">///         // two rows with height: 30 composed of two widgets with width 60 and 40</span><br><span class="line">///         const float ratio[] = &#123;60,40&#125;;</span><br><span class="line">///         nk_layout_row(ctx, NK_STATIC, 30, 2, ratio);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">&#125;</span><br><span class="line">nk_end(...);</span><br></pre></td></tr></table></figure>
+
+<p>5、nk_layout_row_template_begin、nk_layout_row_template_push_dynamic、nk_layout_row_template_push_variable、nk_layout_row_template_push_static、nk_layout_row_template_end 函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_template_begin(struct nk_context*, float row_height);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>float row_height 为行中的每个部件保留的像素高度，如果为0，将自动设置布局；</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_template_push_dynamic(struct nk_context*);</span><br></pre></td></tr></table></figure>
+
+<p>参数：struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_template_push_variable(struct nk_context*, float min_width);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>float min_width 为下一列保留的最小像素宽度；</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_template_push_static(struct nk_context*, float width);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>float width 为下一列保留的绝对像素宽度值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_row_template_end(struct nk_context*);</span><br></pre></td></tr></table></figure>
+
+<p>参数：struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构。</p>
+<p>nk_layout_row_template_xxx系列函数是最复杂以及第二灵活的API，与nk_layout_row_xxx系列函数不同的是，nk_layout_row_template_xxx系列函数需要在调用部件前进行调用以设置布局。</p>
+<p>行模板布局有三个不同的小部件大小说明符，</p>
+<p>第一个是具有固定窗口部件像素宽度的nk_layout_row_template_push_static函数；</p>
+<p>第二个是定义了部件的最小宽度的nk_layout_row_template_push_variable函数，当窗口有更多可用空间，它会随窗口进行缩放；</p>
+<p>最后一个是nk_layout_row_template_push_dynamic函数，它会完全随窗口进行缩放。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">if (nk_begin_xxx(...) &#123;</span><br><span class="line">///         // two rows with height: 30 composed of three widgets</span><br><span class="line">///         nk_layout_row_template_begin(ctx, 30);</span><br><span class="line">///         nk_layout_row_template_push_dynamic(ctx);</span><br><span class="line">///         nk_layout_row_template_push_variable(ctx, 80);</span><br><span class="line">///         nk_layout_row_template_push_static(ctx, 80);</span><br><span class="line">///         nk_layout_row_template_end(ctx);</span><br><span class="line">///         //</span><br><span class="line">///         // first row</span><br><span class="line">///         nk_widget(...); // dynamic widget can go to zero if not enough space</span><br><span class="line">///         nk_widget(...); // variable widget with min 80 pixel but can grow bigger if enough space</span><br><span class="line">///         nk_widget(...); // static widget with fixed 80 pixel width</span><br><span class="line">///         //</span><br><span class="line">///         // second row same layout</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///     &#125;</span><br><span class="line">///     nk_end(...);</span><br></pre></td></tr></table></figure>
+
+<p>6、nk_layout_space_begin、nk_layout_space_push和nk_layout_space_end 函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_space_begin(struct nk_context*, enum nk_layout_format, float height, int widget_count);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>enum nk_layout_format 按窗口比例显示为NK_DYNAMIC，列固定大小显示为NK_STATIC；</p>
+<p>float height 为行中的每个部件保留的像素高度，如果为0，将自动设置布局；</p>
+<p>int widget_count 行内部件数量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_space_push(struct nk_context *ctx, struct nk_rect bounds);</span><br></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<p>struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构；</p>
+<p>struct nk_rect bounds 在布局空间局部坐标中的位置和大小。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_space_end(struct nk_context*);</span><br></pre></td></tr></table></figure>
+
+<p>参数：struct nk_context *ctx 指向在调用 nk_begin_xxx后已初始化的 nk_context 结构。</p>
+<p>最后一种布局函数是最灵活的，允许直接在布局空间中指定部件的显示位置和大小。</p>
+<img title src="file:///workzone/website/blog/pic/nuklear/nk_layout_space_xxx.png" alt data-align="center" width="319">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">if (nk_begin_xxx(...) &#123;</span><br><span class="line">///         // static row with height: 500 (you can set column count to INT_MAX if you don&#x27;t want to be bothered)</span><br><span class="line">///         nk_layout_space_begin(ctx, NK_STATIC, 500, INT_MAX);</span><br><span class="line">///         nk_layout_space_push(ctx, nk_rect(0,0,150,200));</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_space_push(ctx, nk_rect(200,200,100,200));</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_space_end(ctx);</span><br><span class="line">///         //</span><br><span class="line">///         // dynamic row with height: 500 (you can set column count to INT_MAX if you don&#x27;t want to be bothered)</span><br><span class="line">///         nk_layout_space_begin(ctx, NK_DYNAMIC, 500, INT_MAX);</span><br><span class="line">///         nk_layout_space_push(ctx, nk_rect(0.5,0.5,0.1,0.1));</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///         nk_layout_space_push(ctx, nk_rect(0.7,0.6,0.1,0.1));</span><br><span class="line">///         nk_widget(...);</span><br><span class="line">///     &#125;</span><br><span class="line">///     nk_end(...);</span><br></pre></td></tr></table></figure>
+
+<p>相关函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct nk_rect nk_layout_space_bounds(struct nk_context*);</span><br></pre></td></tr></table></figure>
+
+<p>功能：在nk_layout_space_begin之后调用，并返回分配的总空间。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct nk_vec2 nk_layout_space_to_screen(struct nk_context*, struct nk_vec2);</span><br></pre></td></tr></table></figure>
+
+<p>功能：将矢量从nk_layout_space坐标空间转换为屏幕空间。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct nk_vec2 nk_layout_space_to_local(struct nk_context*, struct nk_vec2);</span><br></pre></td></tr></table></figure>
+
+<p>功能：将矢量从布局空间转换为屏幕空间。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct nk_rect nk_layout_space_rect_to_screen(struct nk_context*, struct nk_rect);</span><br></pre></td></tr></table></figure>
+
+<p>功能：将矩形从屏幕空间转换为布局空间。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct nk_rect nk_layout_space_rect_to_local(struct nk_context*, struct nk_rect);</span><br></pre></td></tr></table></figure>
+
+<p>功能：将矩形从布局空间转换为屏幕空间。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_spacer(struct nk_context* );</span><br></pre></td></tr></table></figure>
+
+<p>功能：Spacer是一个虚拟部件，它像往常一样消耗空间，但不绘制任何内容（仅做占位）。</p>
+<p>其他设置布局函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_set_min_row_height(struct nk_context*, float height);</span><br></pre></td></tr></table></figure>
+
+<p>功能：将当前使用的布局行高设置为指定值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void nk_layout_reset_min_row_height(struct nk_context*);</span><br></pre></td></tr></table></figure>
+
+<p>功能：将当前使用的最小行高重设为字体高度。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct nk_rect nk_layout_widget_bounds(struct nk_context*);</span><br></pre></td></tr></table></figure>
+
+<p>功能：计算静态布局行可以容纳在窗口内的当前宽度。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">float nk_layout_ratio_from_pixel(struct nk_context*, float pixel_width);</span><br></pre></td></tr></table></figure>
+
+<p>功能：根据像素大小计算窗口比率大小。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&text=nuklear手册 3 - 布局"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&is_video=false&description=nuklear手册 3 - 布局"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=nuklear手册 3 - 布局&body=Check out this article: http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&title=nuklear手册 3 - 布局"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&name=nuklear手册 3 - 布局&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/&t=nuklear手册 3 - 布局"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2022
+    寻觅
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

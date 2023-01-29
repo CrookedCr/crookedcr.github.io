@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="malloc(size_t)是C API中的内存分配函数，当调用malloc函数时，其返回一块由参数所指定大小的内存块（考虑到字节对齐的关系，实际分配的内存大小总是以2的幂的方式进行对齐，所以分配的内存大小可能大于或等于参数所指定的大小），当使用完mallo函数分配的内存后，通过调用C API函数free(void *)释放内存。无论是为单个对象还是数组对象分配内存，free函数总是能正确的释放分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C&#x2F;C++ 如何在释放内存时获取malloc分配内存块的大小?">
+<meta property="og:url" content="http://example.com/2023/01/23/c&cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/index.html">
+<meta property="og:site_name" content="寻觅">
+<meta property="og:description" content="malloc(size_t)是C API中的内存分配函数，当调用malloc函数时，其返回一块由参数所指定大小的内存块（考虑到字节对齐的关系，实际分配的内存大小总是以2的幂的方式进行对齐，所以分配的内存大小可能大于或等于参数所指定的大小），当使用完mallo函数分配的内存后，通过调用C API函数free(void *)释放内存。无论是为单个对象还是数组对象分配内存，free函数总是能正确的释放分">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-01-23T14:35:54.000Z">
+<meta property="article:modified_time" content="2023-01-29T04:38:20.277Z">
+<meta property="article:tag" content="malloc">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>C/C++ 如何在释放内存时获取malloc分配内存块的大小?</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/01/28/c&cpp%20%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%EF%BC%9A%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/10/08/nuklear%E6%89%8B%E5%86%8C%203%20-%20%E5%B8%83%E5%B1%80/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&text=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&is_video=false&description=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C/C++ 如何在释放内存时获取malloc分配内存块的大小?&body=Check out this article: http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&name=C/C++ 如何在释放内存时获取malloc分配内存块的大小?&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&t=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        C/C++ 如何在释放内存时获取malloc分配内存块的大小?
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-01-23T14:35:54.000Z" itemprop="datePublished">2023-01-23</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/malloc/" rel="tag">malloc</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>malloc(size_t)是C API中的内存分配函数，当调用malloc函数时，其返回一块由参数所指定大小的内存块（考虑到字节对齐的关系，实际分配的内存大小总是以2的幂的方式进行对齐，所以分配的内存大小可能大于或等于参数所指定的大小），当使用完mallo函数分配的内存后，通过调用C API函数free(void *)释放内存。无论是为单个对象还是数组对象分配内存，free函数总是能正确的释放分配的内存。</p>
+<p>如果现在要在C++中重载operator new及operator delete两个函数以跟踪内存分配的总字节数，可以像这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">void * operator new(size_t _bytes)</span><br><span class="line">&#123;</span><br><span class="line">    return malloc(_bytes);</span><br><span class="line">&#125;</span><br><span class="line">//重载的operator new函数接受一个size_t类型的参数，并将该参数转发给malloc，malloc</span><br><span class="line">  返回指向参数指定大小的内存块</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">void operator delete(void * _addr)</span><br><span class="line">&#123;</span><br><span class="line">    free(_addr);</span><br><span class="line">&#125;</span><br><span class="line">//重载的operator delete函数接受一个void *类型的参数，并将该参数转发给free，free</span><br><span class="line">  释放传递的参数所指向的内存块</span><br></pre></td></tr></table></figure>
+
+<p>我们可以清楚的知道每次分配的字节数，并在重载的operator new函数中插入记录函数或语句，以记录实际分配的内存字节总数。但对于重载的operator delete函数来说，其只接受一个指向待释放内存的地址，我们无法再传入其他参数以指定要释放内存的大小，并减去已释放内存的大小。如果为每个已分配内存的对象都记录其所分配的大小情况的话，在面向对象式编程方面，这兴许很方便，可以通过内置数据成员来记录内存块的大小，但如果我不想在类或结构内部记录已分配内存块的大小呢！对于这种情况，有三种方式可以跟随要释放的内存大小：</p>
+<p><strong>一、使用宏函数</strong></p>
+<p>可以使用宏函数调用的方式额外传递一个表示大小的参数，宏函数将在编译器的预处理阶段替换为实际要执行的语句：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#define delete_memory(address,size) \</span><br><span class="line">delete address;   \</span><br><span class="line">total_allocated -= size; //total_allocated是记录已分配字节数的变量</span><br><span class="line">------------------------------------------------------------------------</span><br><span class="line">通过使用sizeof运算符计算出对象的大小</span><br></pre></td></tr></table></figure>
+
+<p><strong>二、封装delete调用</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">void delete_memory(void * _addr,const size_t &amp; _size)</span><br><span class="line">&#123;</span><br><span class="line">    delete _addr;</span><br><span class="line">    total_allocated -= _size; //total_allocated是记录已分配字节数的全局变量</span><br><span class="line">&#125;</span><br><span class="line">第二种方式使用函数调用的方式进行处理。</span><br></pre></td></tr></table></figure>
+
+<p>上面两种方式都需要手动计算对象的大小，并将结果当作参数传递给函数。</p>
+<p><strong>三、使用malloc.h提供的内存块大小获取函数</strong></p>
+<p>C API在malloc.h头文件中为不同平台提供了计算malloc函数返回的内存块大小的函数，在Windwos平台下实现为_msize(void *)，在Linux平台下实现为malloc_usable_size(void *)，它们都返回size_t类型的值，表示当前传递给参数的指针所指向内存块的大小（以字节为单位）。</p>
+<p>针对跨平台调用，可以使用以下宏定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#if defined(WIN32) || defined(_WIN32) || defined(_WIN32_) || defined(WIN64) || defined(_WIN64) || defined(_WIN64_)</span><br><span class="line">#define get_allocated_size(x) _msize(x)</span><br><span class="line">#elif defined(__linux__)</span><br><span class="line">#define get_allocated_size(x) malloc_usable_size(x)</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<p>在使用时直接调用get_allocated_size并传入指向内存块的指针即可。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&text=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&is_video=false&description=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C/C++ 如何在释放内存时获取malloc分配内存块的大小?&body=Check out this article: http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&title=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&name=C/C++ 如何在释放内存时获取malloc分配内存块的大小?&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/23/c&amp;cpp%20%E5%A6%82%E4%BD%95%E5%9C%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%E6%97%B6%E8%8E%B7%E5%8F%96malloc%E5%88%86%E9%85%8D%E5%86%85%E5%AD%98%E5%9D%97%E7%9A%84%E5%A4%A7%E5%B0%8F/&t=C/C++ 如何在释放内存时获取malloc分配内存块的大小?"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2022
+    寻觅
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
